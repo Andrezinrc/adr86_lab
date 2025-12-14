@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "ptrace-fake.h"
 #include <string.h>
 #include <errno.h>
@@ -5,7 +6,7 @@
 #include "cpu.h"
 #include "memory.h"
 
-
+struct breakpoint breakpoints[MAX_BREAKPOINTS];
 static struct fake_process *proc_table[32];
 static int proc_count = 0;
 
@@ -63,4 +64,37 @@ long fake_ptrace(int request, pid_t pid, void *addr, void *data) {
     }
 
     return -EINVAL;
+}
+
+void bp_set(uint32_t addr, uint8_t *memory) {
+    for (int i=0;i<MAX_BREAKPOINTS;i++) {
+        if (!breakpoints[i].active) {
+            breakpoints[i].addr = addr;
+            breakpoints[i].orig_byte = memory[addr];
+            memory[addr] = 0xCC; // INT3
+            breakpoints[i].active = 1;
+            printf("Breakpoint definido em 0x%X\n", addr);
+            return;
+        }
+    }
+    printf("Sem espaço para mais breakpoints!\n");
+}
+
+void bp_clear(uint32_t addr, uint8_t *memory) {
+    for (int i=0;i<MAX_BREAKPOINTS;i++) {
+        if (breakpoints[i].active && breakpoints[i].addr == addr) {
+            memory[addr] = breakpoints[i].orig_byte;
+            breakpoints[i].active = 0;
+            return;
+        }
+    }
+}
+
+int bp_check(struct CPU *cpu) {
+    for (int i=0;i<MAX_BREAKPOINTS;i++) {
+        if (breakpoints[i].active && breakpoints[i].addr == cpu->eip) {
+            return i;
+        }
+    }
+    return -1;
 }
