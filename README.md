@@ -2,6 +2,13 @@ adr86
 
 Emulador educacional de CPU x86 em C.
 
+O projeto implementa:
+- Emulação de instruções x86 (32-bit)
+- Sistema de memória virtual simplificado
+- Kernel educacional com suporte a syscalls básicas
+- ptrace fake para integração com debugger
+- Debugger interativo
+
 Compilar
 
 ```bash
@@ -20,14 +27,10 @@ Sobre
 
 Emula uma CPU x86 32-bit com sistema de memória e debugger integrado. Permite modificar registradores e memória durante a execução via comandos interativos.
 
-Comandos do Debugger
-
-· s - executa uma instrução
-· c - continua até breakpoint
-· r <reg> <val> - modifica registrador
-· w <addr> <val> - escreve na memória
-· b <addr> - adiciona breakpoint
-· d <addr> - remove breakpoint
-· q - sai
+O objetivo do projeto é estudar:
+- Arquitetura x86
+- Interação user-space <-> kernel-space
+- Funcionamento de syscalls
+- Fundamentos de debuggers e ptrace
 
 Projeto para aprendizado de arquitetura de computadores e funcionamento de debuggers.
