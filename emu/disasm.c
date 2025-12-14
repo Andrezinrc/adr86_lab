@@ -68,7 +68,13 @@ void disassemble(uint8_t *memory, uint32_t eip) {
             printf("jmp %d\n", rel);
             break;
         } 
-        
+        case 0xBB: printf("mov ebx, 0x%08X\n", mem_read32(memory, eip+1)); break;
+        case 0xBA: printf("mov edx, 0x%08X\n", mem_read32(memory, eip+1)); break;
+        case 0xCD: {
+            uint8_t int_num = memory[eip+1];
+            printf("int 0x%02X\n", int_num);
+            break;
+        }     
         case 0xCC: printf("int3\n"); break;
         case 0x90: printf("nop\n"); break;
         case 0xF8: printf("clc\n"); break;

@@ -6,7 +6,7 @@
 #include "disasm.h"
 #include "ptrace-fake.h"
 #include "debugger.h"
-
+#include "emu/kernel/kernel.h"
 
 int main(){
     struct CPU cpu;
@@ -21,7 +21,7 @@ int main(){
     proc.stopped = 0;
     fp_register(&proc);
 
-    FILE *f = fopen("test.bin", "rb");
+    FILE *f = fopen("teste_syscall.bin", "rb");
     if(!f) {
        printf("Erro ao abrir arquivo\n");
        return -1;
@@ -33,7 +33,8 @@ int main(){
     fread(memory, 1, t, f);
     fclose(f);
  
- 
+    char *msg = "Ola mundo!";
+    memcpy(memory + 0x1000, msg, strlen(msg)); 
     fake_ptrace(PTRACE_ATTACH, 1337, NULL, NULL);
     
     char cmd[64];
@@ -62,9 +63,19 @@ int main(){
             dbg.running = 0;
         }
         
-         fake_ptrace(PTRACE_SINGLESTEP, 1337, NULL, NULL);
-         
-         if(cpu.eip >= MEM_SIZE || memory[cpu.eip] == 0xF4) break; 
+        fake_ptrace(PTRACE_SINGLESTEP, 1337, NULL, NULL);
+        
+        if (memory[cpu.eip] == 0xCD && memory[cpu.eip + 1] == 0x80){
+            kernel_handle_syscall(&cpu, memory);
+            cpu.eip += 2;
+            continue;
+        } 
+
+        if (memory[0] == 0xFF){
+            printf("Processo terminado via syscall exit\n");
+            break;
+        }
+        if(cpu.eip >= MEM_SIZE || memory[cpu.eip] == 0xF4) break; 
     }
     return 0;
 }

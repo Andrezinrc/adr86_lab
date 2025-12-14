@@ -7,7 +7,7 @@ Compilar
 ```bash
 gcc main.c emu/cpu.c emu/memory.c emu/disasm.c \
 emu/ptrace-fake.c emu/debugger.c \
--I emu -o emulator
+emu/kernel/kernel.c -I emu -o emulator
 ```
 
 Executar

@@ -274,6 +274,20 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
            cpu->eip += 1;
            break;
        }
+       case 0xBB: // mov ebx, imm32
+            cpu->ebx.e = mem_read32(memory, cpu->eip + 1);
+            cpu->eip += 5;
+            break;
+
+       case 0xBA: // mov edx, imm32  
+            cpu->edx.e = mem_read32(memory, cpu->eip + 1);
+            cpu->eip += 5;
+            break;
+
+       case 0xCD: // int
+            cpu->eip += 2;
+            break;
+   
        case 0xF4: {
             printf("Encerrando.\n");
             exit(1);
