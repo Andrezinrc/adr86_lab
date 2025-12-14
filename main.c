@@ -44,6 +44,8 @@ int main(){
         
          if (!dbg.running) {
             disassemble(memory, cpu.eip);
+            printf("EAX=%08X  ECX=%08X  FLAGS: ZF=%d SF=%d CF=%d OF=%d\n",
+       cpu.eax.e, cpu.ecx.e, cpu.flags.ZF, cpu.flags.SF, cpu.flags.CF, cpu.flags.OF);
             dbg_prompt(cmd, sizeof(cmd));
             dbg_handle_cmd(&dbg, cmd, &cpu, memory);
 
@@ -56,6 +58,7 @@ int main(){
         if (idx >= 0) {
             printf("Breakpoint atingido em 0x%X\n", cpu.eip);
             bp_clear(cpu.eip, memory);
+            cpu.eip--;
             dbg.running = 0;
         }
         

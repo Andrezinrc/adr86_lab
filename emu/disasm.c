@@ -69,10 +69,12 @@ void disassemble(uint8_t *memory, uint32_t eip) {
             break;
         } 
         
+        case 0xCC: printf("int3\n"); break;
         case 0x90: printf("nop\n"); break;
-         case 0xF8: printf("clc\n"); break;
+        case 0xF8: printf("clc\n"); break;
         case 0xF4: printf("hlt\n"); break;
         default: printf("db 0x%02X\n", op);
     }
 }
+
 
