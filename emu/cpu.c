@@ -202,7 +202,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 uint8_t reg, rm;
                 if(!modrm_reg_reg(modrm, &reg, &rm)){
                     printf("MOV mem nao suportado: %02X\n", modrm);
-					  exit(1);
+                    exit(1);
                 }
 				  
 				  uint32_t *dst = get_reg32(cpu, reg);
@@ -235,42 +235,45 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 break;
             }
         
+		     /* Opcodes 83 r/m32, imm8 (ADD/SUB/CMP) */
             case 0x83: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
                 int8_t imm = mem_read8(memory, cpu->eip + 2);
-                switch(modrm){
-                    case 0xC0: { // add eax, imm8
-                        uint32_t a = cpu->eax.e;
-                        uint32_t res = a + imm;
-                        update_add_flags(cpu, a, imm, res);
-                        cpu->eax.e = res;
-                        cpu->eip += 3;
+				
+                uint8_t mod = modrm >> 6;
+                uint8_t reg = (modrm >> 3) & 7;
+                uint8_t rm = modrm & 7;
+
+                if(mod!=3){
+                    printf("83 memoria nao suportado: %02X\n", modrm);
+                    exit(1);
+                }
+                uint32_t *dst = get_reg32(cpu, rm);
+                switch(reg){
+                    case 0: { // ADD
+                        uint32_t res = *dst + imm;
+                        update_add_flags(cpu, *dst, imm, res);
+                        *dst = res;
                         break;
                     }
-               
-                    case 0xE8: { // sub eax, imm8
-                        uint32_t a = cpu->eax.e;
-                        uint32_t res = a - imm;
-                        update_sub_flags(cpu, a, imm, res);
-                        cpu->eax.e = res;
-                        cpu->eip += 3;
+                    case 5: { // SUB
+                        uint32_t res = *dst - imm;
+                        update_sub_flags(cpu, *dst, imm, res);
+                        *dst = res;
                         break;
                     }
-               
-               
-                    case 0xF8: { // cmp eax, imm8
-                        uint32_t a = cpu->eax.e;
-                        uint32_t res = a - imm;
-                        update_sub_flags(cpu, a, imm, res);
-                        cpu->eip += 3;
+                    case 7: { // CMP
+                        uint32_t res = *dst - imm;
+                        update_sub_flags(cpu, *dst, imm, res);
                         break;
                     }
-               
                     default:
-                        printf("83 modrm nao suportado: %02X\n", modrm);
+                        printf("83 reg nao suportado: %02X\n", reg);
                         exit(1);
                 }
-                break;
+				
+				cpu->eip += 3;
+				break;
             }
         
             case 0xEB: { // JMP rel8
