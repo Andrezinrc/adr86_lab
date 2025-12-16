@@ -13,6 +13,7 @@
 #include <string.h>
 #include "cpu.h"
 #include "memory.h"
+#include "decoder.h"
 
 uint32_t *get_reg32(struct CPU *cpu, int index) {
     switch(index) {
@@ -45,6 +46,7 @@ void update_add_flags(struct CPU* cpu, uint32_t a, uint32_t b, uint32_t res){
     uint32_t sa = (uint32_t)a;
     uint32_t sb = (uint32_t)b;
     uint32_t sr = (uint32_t)res;
+	cpu->flags.OF = ((sa ^ sr) & (sb ^ sr)) < 0;
 }
 
 
@@ -54,7 +56,7 @@ void update_sub_flags(struct CPU *cpu, uint32_t a, uint32_t b, uint32_t res) {
     int32_t sa = (int32_t)a;
     int32_t sb = (int32_t)b;
     int32_t sr = (int32_t)res;
-    cpu->flags.OF = (((sa ^ sb) & (sa ^ sr)) < 0);
+    cpu->flags.OF = ((sa ^ sb) & (sa ^ sr)) < 0;
 }
 
 
@@ -210,20 +212,24 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
             }
         
         
-            case 0x31: { // XOR r/m32, r32
+		     /* Opcodes XOR r/m32, r32 */
+            case 0x31: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
-                if (modrm == 0xC0) { // xor eax, eax
-                    cpu->eax.e = 0;
-                    update_ZF_SF(cpu, 0);
-                    cpu->eip += 2;
-                } else if(modrm == 0xC9) { // xor ecx, ecx
-                    cpu->ecx.e = 0;
-                    update_ZF_SF(cpu, 0);
-                    cpu->eip += 2;
-                } else {
-                    printf("XOR nao suportado: %02X\n", modrm);
+                uint8_t reg,rm;
+				  
+                if(!modrm_reg_reg(modrm, &reg, &rm)){
+                    printf("XOR mem nao suportado: %02X\n", modrm);
                     exit(1);
                 }
+				  
+                uint32_t *dst = get_reg32(cpu, rm);
+                uint32_t *src = get_reg32(cpu, reg);
+                *dst ^= *src;
+				  
+                update_ZF_SF(cpu, *dst);
+                cpu->flags.ZF = 0;
+                cpu->flags.SF = 0;
+                cpu->eip += 2;
                 break;
             }
         
