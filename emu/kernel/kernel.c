@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "../memory.h"
 #include <stdio.h>
 
 static int kernel_initialized = 0;
@@ -11,8 +12,14 @@ void kernel_init(void) {
 }
 
 static void handle_write(struct CPU *cpu, uint8_t *memory) {
-    if (cpu->ebx.e != 1) {
-        cpu->eax.e = -1; // Apenas stdout
+    if (cpu->ebx.e != 1) return (void)(cpu->eax.e = -1); // Apenas stdout
+    
+    uint32_t start = cpu->ecx.e;
+    uint32_t count = cpu->edx.e;
+ 
+    // Garante que o intervalo [start, start+count) esteja dentro de MEM_SIZE
+    if (start >= MEM_SIZE || start + count > MEM_SIZE) {
+        cpu->eax.e = -1; // EFAULT
         return;
     }
 
@@ -23,7 +30,7 @@ static void handle_write(struct CPU *cpu, uint8_t *memory) {
     }
     printf("\033[0m\n");
     
-    cpu->eax.e = cpu->edx.e;
+    cpu->eax.e = count;
 }
 
 static void handle_exit(struct CPU *cpu, uint8_t *memory) {
