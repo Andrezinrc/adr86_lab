@@ -152,7 +152,12 @@ void disassemble(uint8_t *memory, uint32_t eip) {
         case 0xF4: printf("hlt\n"); break;
 		
         default:
-            printf("db 0x%02X\n", op);
-            break;
+            if(op == 0x00) {
+                return;
+            } else {
+                printf("Opcode desconhecido em EIP=0x%08X: 0x%02X\n", eip, op);
+                break;
+            }
+			 
     }
 }

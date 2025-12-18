@@ -5,7 +5,7 @@
 #include <errno.h>
 
 #include "cpu.h"
-#include "memory.h"
+#include "mem.h"
 
 struct breakpoint breakpoints[MAX_BREAKPOINTS];
 static struct fake_process *proc_table[32];
