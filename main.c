@@ -2,10 +2,10 @@
 #include <stdint.h>
 #include <string.h>
 #include "cpu.h"
-#include "memory.h"
-#include "disasm.h"
+#include "mem.h"
+#include "dasm.h"
 #include "ptrace-fake.h"
-#include "debugger.h"
+#include "dbg.h"
 #include "emu/kernel/kernel.h"
 
 

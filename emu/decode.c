@@ -1,4 +1,4 @@
-#include "decoder.h"
+#include "decode.h"
 
 /*
  * modrm = 0xD8 (11011000b)

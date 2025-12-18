@@ -12,9 +12,9 @@ O projeto implementa:
 Compilar
 
 ```bash
-gcc main.c emu/cpu.c emu/memory.c emu/disasm.c \
-emu/ptrace-fake.c emu/debugger.c \
-emu/decoder.c emu/kernel/kernel.c -I emu -o emulator
+gcc main.c emu/cpu.c emu/mem.c emu/dasm.c \
+emu/ptrace-fake.c emu/dbg.c \
+emu/decode.c emu/kernel/kernel.c -I emu -o emulator
 ```
 
 Executar

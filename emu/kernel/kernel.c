@@ -1,5 +1,5 @@
 #include "kernel.h"
-#include "../memory.h"
+#include "../mem.h"
 #include <stdio.h>
 
 static int kernel_initialized = 0;

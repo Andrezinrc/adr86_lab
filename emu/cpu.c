@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cpu.h"
-#include "memory.h"
-#include "decoder.h"
+#include "mem.h"
+#include "decode.h"
 
 uint32_t *get_reg32(struct CPU *cpu, int index) {
     switch(index) {

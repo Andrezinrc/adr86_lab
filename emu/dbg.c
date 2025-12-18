@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "debugger.h"
+#include "dbg.h"
 #include "ptrace-fake.h"
 
 void dbg_prompt(char *buf, size_t size){
