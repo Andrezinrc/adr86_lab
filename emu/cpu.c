@@ -109,20 +109,21 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 break;
             }
         
-            case 0x29: { // SUB r/m32, r32
+		     /* Opcodes SUB r/m32, r32 */
+            case 0x29: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
-                if(modrm == 0xC8){
-                    uint32_t a = cpu->eax.e;
-                    uint32_t b = cpu->ecx.e;
-                    uint32_t res = a - b;
-                    update_sub_flags(cpu, a, b, res);
-                    cpu->eax.e = res;
-                    cpu->eip += 2;
-                } else {
-                    printf("modrm não suportado para SUB em EIP=0x%X: 0x%02X\n", cpu->eip, modrm);
+                
+                if(!modrm_reg_reg(modrm, &reg, &rem)){
+                    printf("SUB mem nao suportado em EIP=0x%X: %02X\n", cpu->eip, modrm);
                     exit(1);
                 }
-                break;
+                
+                uint32_t a = *get_reg32(cpu, rm);
+                uint32_t b = *get_reg32(cpu, reg);
+                uint32_t res = a - b;
+                
+                update_sub_flags(cpu, a, b, res);
+                *get_reg32(cpu, rm) = res;
             }
         
             case 0x40: { // INC EAX
@@ -142,21 +143,24 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
             }
         
         
-        
-            case 0x39: { // CMP EAX, ECX
+            /* Opcodes CMP r/m32, r32 */
+            case 0x39: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
-                if(modrm == 0xC8){
-                    uint32_t a = cpu->eax.e;
-                    uint32_t b = cpu->ecx.e;
-                    uint32_t res = a - b;
-                    update_sub_flags(cpu, a, b, res);
-                    cpu->eip += 2;
-                } else {
-                    printf("modrm não suportado para CMP\n");
+                uint8_t reg, rm;
+                
+                if(!modrm_reg_reg(modrm, &reg, &rm)){
+                    printf("CMP mem nao suportado: %02X\n");
                     exit(1);
                 }
+                
+                uint32_t a = *get_reg32(cpu, rm);
+                uint32_t b = *get_reg32(cpu, reg);
+                uint32_t res = a - b;
+                
+                update_sub_flags(cpu, a, b, res);
+                cpu->eip += 2;
                 break;
-            }
+			 }
         
         
             case 0x74: { // JE/JZ rel8
@@ -196,7 +200,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 break;
             }
             
-            /* Opcodes MOV r32, r/m3 */
+            /* Opcode MOV r32, r/m32 */
             case 0x8B: {
                 uint8_t modrm = mem_read8(memory,cpu->eip + 1);
                 uint8_t reg, rm;
