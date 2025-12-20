@@ -118,8 +118,9 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
 		     /* Opcodes SUB r/m32, r32 */
             case 0x29: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
+                uint8_t reg,rm;
                 
-                if(!modrm_reg_reg(modrm, &reg, &rem)){
+                if(!modrm_reg_reg(modrm, &reg, &rm)){
                     printf("SUB mem nao suportado em EIP=0x%X: %02X\n", cpu->eip, modrm);
                     exit(1);
                 }
@@ -157,7 +158,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 uint8_t reg, rm;
                 
                 if(!modrm_reg_reg(modrm, &reg, &rm)){
-                    printf("CMP mem nao suportado: %02X\n");
+                    printf("CMP mem nao suportado: %02X\n", modrm);
                     exit(1);
                 }
                 
