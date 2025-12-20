@@ -88,24 +88,30 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 uint32_t a = cpu->eax.e;
                 uint32_t res = a + imm;
                 cpu->eax.e = res;
-                update_ZF_SF(cpu, res);
+                update_add_flags(cpu, a, imm, res);
                 cpu->eip += 5;
                 break;
             }
         
-            case 0x01: { // ADD r/m32, r32
+		     /* Opcodes ADD r/m32, r32 */
+            case 0x01: {
                 uint8_t modrm = mem_read8(memory, cpu->eip + 1);
-                if(modrm == 0xC8) {
-                    uint32_t a = cpu->eax.e;
-                    uint32_t b = cpu->ecx.e;
-                    uint32_t res = a + b;
-                    update_add_flags(cpu, a, b, res);
-                    cpu->eax.e = res;
-                    cpu->eip += 2;
-                } else {
-                    printf("modrm não suportado para opcode 0x01 em EIP=0x%X: 0x%02X\n", cpu->eip, modrm);
+                uint8_t reg, rm;
+				
+                if(!modrm_reg_reg(modrm, &reg, &rm)){
+                    printf("ADD mem nao suportado em EIP=0x%X: %02X\n", cpu->eip, modrm);
                     exit(1);
                 }
+                
+                uint32_t *dst = get_reg32(cpu, rm);
+                uint32_t src = *get_reg32(cpu, reg);
+                
+                uint32_t old = *dst;
+                uint32_t res = old + src;
+                
+                update_add_flags(cpu, old, src, res);
+                *dst = res;
+                cpu->eip += 2;
                 break;
             }
         
@@ -124,6 +130,8 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 
                 update_sub_flags(cpu, a, b, res);
                 *get_reg32(cpu, rm) = res;
+                cpu->eip += 2;
+                break;
             }
         
             case 0x40: { // INC EAX
@@ -210,7 +218,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
                 }
                 
                 uint32_t *dst = get_reg32(cpu, reg);
-				uint32_t *src = get_reg32(cpu, rm);
+                uint32_t *src = get_reg32(cpu, rm);
 				
                 *dst = *src;
                 cpu->eip += 2;
