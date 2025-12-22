@@ -14,6 +14,7 @@
 #include "cpu.h"
 #include "mem.h"
 #include "decode.h"
+#include "kernel/kernel.h"
 
 uint32_t *get_reg32(struct CPU *cpu, int index) {
     switch(index) {
@@ -54,7 +55,7 @@ void update_sub_flags(struct CPU *cpu, uint32_t a, uint32_t b, uint32_t res) {
 }
 
 
-void cpu_step(struct CPU *cpu, uint8_t *memory) {
+void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc) {
     uint8_t opcode = mem_read8(memory, cpu->eip);
    
     /* Opcodes MOV r32, imm32 */
@@ -312,9 +313,21 @@ void cpu_step(struct CPU *cpu, uint8_t *memory) {
             }
 	   
 
-            case 0xCD: // int
+            case 0xCD: { // INT n
+                uint8_t num = mem_read8(memory, cpu->eip + 1);
+                
+                if(num == 0x80){
+                    if(cpu->eax.e == 1) { // SYS_EXIT
+                        if(proc){
+                            proc->alive = 0;
+                        }
+                    } else {
+                        kernel_handle_syscall(proc);
+                    }
+                }
                 cpu->eip += 2;
                 break;
+            }
    
             case 0xF4: {
                 printf("Encerrando.\n");

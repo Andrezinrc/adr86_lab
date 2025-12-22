@@ -26,39 +26,26 @@ int load_bin(const char *path, uint8_t *memory) {
     return 0;
 }
 
-static void run_program(struct CPU *cpu, uint8_t *memory) {
-    struct fake_process *proc = fp_get(FAKE_PID);
+static void run_program(struct fake_process *proc) {
     if (!proc) return;
-
+    
     for(;;) {
+        cpu_step(&proc->cpu, proc->memory, proc);
 
-        /* syscall int 0x80 */
-        if (proc->memory[proc->cpu.eip] == 0xCD &&
-            proc->memory[proc->cpu.eip + 1] == 0x80) {
-
-            kernel_handle_syscall(proc);
-            proc->cpu.eip += 2;
-            continue;
-        }
-
-        /* syscall exit */
-        if (proc->memory[0] == 0xFF) { break; }
-
-        cpu_step(&proc->cpu, proc->memory);
-
-        if (proc->cpu.eip >= MEM_SIZE || proc->memory[proc->cpu.eip] == 0xF4) { break; }
+        if (proc->cpu.eip >= MEM_SIZE
+            || proc->memory[proc->cpu.eip] == 0xF4
+            || !proc->alive) { break; }
     }
 }
 
-static void debugger_loop(struct CPU *cpu, uint8_t *memory) {
-    char cmd[64];
+static void debugger_loop(struct fake_process *proc) {
+    if(!proc) return;
+
+	char cmd[64];
     struct Debugger dbg = {0};
 
     fake_ptrace(PTRACE_ATTACH, FAKE_PID, NULL, NULL);
-	
-    struct fake_process *proc = fp_get(FAKE_PID);
-    if (!proc) return;
-	
+
     for(;;) {
         fake_ptrace(PTRACE_GETREGS, FAKE_PID, NULL, &proc->cpu);
 
@@ -70,8 +57,7 @@ static void debugger_loop(struct CPU *cpu, uint8_t *memory) {
             dbg_prompt(cmd, sizeof(cmd));
             dbg_handle_cmd(&dbg, cmd, &proc->cpu, proc->memory);
 
-            if (dbg.running == -1)
-                break;
+            if (dbg.running == -1) { break; }
         }
 
         int idx = bp_check(&proc->cpu);
@@ -84,18 +70,9 @@ static void debugger_loop(struct CPU *cpu, uint8_t *memory) {
 
         fake_ptrace(PTRACE_SINGLESTEP, FAKE_PID, NULL, NULL);
 
-        if (proc->memory[proc->cpu.eip] == 0xCD &&
-            proc->memory[proc->cpu.eip + 1] == 0x80) {
-
-            kernel_handle_syscall(proc);
-            proc->cpu.eip += 2;
-            continue;
-        }
-
-        if (proc->memory[0] == 0xFF) { break; }
-
-        if (proc->cpu.eip >= MEM_SIZE || proc->memory[proc->cpu.eip] == 0xF4)
-            break;
+        if (proc->cpu.eip >= MEM_SIZE
+            || proc->memory[proc->cpu.eip] == 0xF4
+            || !proc->alive) { break; }
     }
 }
 
@@ -122,10 +99,7 @@ int main(int argc, char **argv){
     }
     
     const char *bin_path = argv[2];
-
-    struct CPU cpu;
     uint8_t *memory = mem_create();
-    cpu_init(&cpu, MEM_SIZE);
     
     if (load_bin(bin_path, memory) < 0) {
         printf("Erro ao abrir arquivo: %s\n", bin_path);
@@ -135,18 +109,18 @@ int main(int argc, char **argv){
        
     static struct fake_process proc;
     proc.pid = FAKE_PID;
-    proc.cpu = cpu;
     proc.memory = memory;
-    proc.stopped = 0;
-    fp_register(&proc);
+    proc.alive = 1;
 
+    fp_register(&proc);
+    cpu_init(&proc.cpu, MEM_SIZE);
     
     if (debug_mode){
         printf("[*] Modo DEBUG\n");
-        debugger_loop(&cpu, memory);
+        debugger_loop(&proc);
     } else {
         printf("[*] Modo RUN\n");
-        run_program(&cpu, memory);
+        run_program(&proc);
     }
 
     return 0;

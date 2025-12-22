@@ -40,7 +40,7 @@ long fake_ptrace(int request, pid_t pid, void *addr, void *data) {
         return 0;
 
     case PTRACE_SINGLESTEP:
-        cpu_step(&p->cpu, p->memory);
+        cpu_step(&p->cpu, p->memory, p);
         p->stopped = 1;
         return 0;
 

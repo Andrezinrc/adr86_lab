@@ -23,8 +23,7 @@ static void handle_write(struct CPU *cpu, uint8_t *memory) {
         return;
     }
 
-    printf("Processo: ");
-    printf("\033[32m");
+    printf("\033[1;32m");
     for (uint32_t i=0;i<cpu->edx.e;i++) {
         putchar(memory[cpu->ecx.e + i]);
     }
@@ -35,10 +34,10 @@ static void handle_write(struct CPU *cpu, uint8_t *memory) {
 
 static void handle_exit(struct CPU *cpu, uint8_t *memory) {
     printf("Processo terminou %d\n", cpu->ebx.e);
-    memory[0] = 0xFF; // Sinaliza fim para main loop
+    memory[0] = 0xFF;
 }
 
-// Manipulador de syscalls - convenção x86-32 (syscall num em EAX)
+
 void kernel_handle_syscall(struct fake_process *proc) {
     if (!kernel_initialized) kernel_init();
 	
@@ -60,7 +59,7 @@ void kernel_handle_syscall(struct fake_process *proc) {
             break;
         default:
             KDEBUG("Syscall %d não implementada\n", syscall_num);
-            cpu->eax.e = -1; // ENOSYS
+            cpu->eax.e = -1;
             break;
     }
 }

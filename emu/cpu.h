@@ -20,8 +20,10 @@ struct CPU {
     struct Flags flags;
 };
 
+struct fake_process;
+
 void cpu_init(struct CPU *cpu, uint32_t mem_size);
-void cpu_step(struct CPU *cpu, uint8_t *memory);
+void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc);
 
 
 
