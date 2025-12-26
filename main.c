@@ -80,10 +80,10 @@ static void debugger_loop(struct fake_process *proc) {
 int main(int argc, char **argv){
     if (argc<3) {
         printf("\033[2J\033[H");
-        printf("\033[36mEmulador x86 32-bit (educacional)\033[0m\n");
-        printf("Uso:\n");
-        printf("  %s debug <program.bin>   # Executa programa\n", argv[0]);
-        printf("  %s run   <program.bin>   # Executa com debugger\n", argv[0]);
+        printf("\033[36m[x86 Emulator v0.1]\033[0m\n");
+        printf("Commands:\n");
+        printf("  %s debug <program.bin>\n", argv[0]);
+        printf("  %s run   <program.bin>\n", argv[0]);
         return 1;
     }
 
