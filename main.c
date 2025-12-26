@@ -51,9 +51,7 @@ static void debugger_loop(struct fake_process *proc) {
 
         if (!dbg.running){
             disassemble(proc->memory, proc->cpu.eip);
-
-            printf("EIP=%08X  EAX=%08X  ECX=%08X\n", proc->cpu.eip, proc->cpu.eax.e, proc->cpu.ecx.e);
-
+            
             dbg_prompt(cmd, sizeof(cmd));
             dbg_handle_cmd(&dbg, cmd, &proc->cpu, proc->memory);
 

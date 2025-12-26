@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "dbg.h"
 #include "ptrace-fake.h"
 
@@ -20,6 +21,7 @@ void dbg_help(void){
     printf("b addr     - Set breakpoint\n");
     printf("d addr     - Delete breakpoint\n");
     printf("x addr len - Examine memory (hex + ASCII)\n");
+    printf("p reg      - Print register value (use 'all' for all registers)\n");
     printf("h          - Show this help\n\n");
 }
 
@@ -116,6 +118,42 @@ void dbg_handle_cmd(struct Debugger *dbg, char *cmd, struct CPU *cpu, uint8_t *m
             dbg_examine(addr, len);
         } else {
             printf("Uso: x <addr> <len>\n");
+        }
+        return;
+    }
+
+    if (tolower(cmd[0]) == 'p') {
+        char arg[32];
+        sscanf(cmd, "p %s", arg);
+    
+        if (strcmp(arg, "eax") == 0) printf("EAX = 0x%08X\n", cpu->eax.e);
+        else if (strcmp(arg, "ebx") == 0) printf("EBX = 0x%08X\n", cpu->ebx.e);
+        else if (strcmp(arg, "ecx") == 0) printf("ECX = 0x%08X\n", cpu->ecx.e);
+        else if (strcmp(arg, "edx") == 0) printf("EDX = 0x%08X\n", cpu->edx.e);
+        else if (strcmp(arg, "esp") == 0) printf("ESP = 0x%08X\n", cpu->esp.e);
+        else if (strcmp(arg, "ebp") == 0) printf("EBP = 0x%08X\n", cpu->ebp.e);
+        else if (strcmp(arg, "esi") == 0) printf("ESI = 0x%08X\n", cpu->esi.e);
+        else if (strcmp(arg, "edi") == 0) printf("EDI = 0x%08X\n", cpu->edi.e);
+        else if (strcmp(arg, "eip") == 0) printf("EIP = 0x%08X\n", cpu->eip);
+        else if (strcmp(arg, "flags") == 0) {
+            printf("ZF=%d SF=%d CF=%d OF=%d\n",
+                cpu->flags.ZF,
+                cpu->flags.SF,
+                cpu->flags.CF,
+                cpu->flags.OF);
+        } else if (strcmp(arg, "all") == 0) {
+            printf(
+                "EAX=0x%08X  EBX=0x%08X  ECX=0x%08X  EDX=0x%08X\n"
+                "ESP=0x%08X  EBP=0x%08X  ESI=0x%08X  EDI=0x%08X\n"
+                "EIP=0x%08X\n"
+                "FLAGS: ZF=%d SF=%d CF=%d OF=%d\n",
+                cpu->eax.e, cpu->ebx.e, cpu->ecx.e, cpu->edx.e,
+                cpu->esp.e, cpu->ebp.e, cpu->esi.e, cpu->edi.e,
+                cpu->eip,
+                cpu->flags.ZF, cpu->flags.SF, cpu->flags.CF, cpu->flags.OF
+            );
+        } else {
+            printf("reg deseconhecido: %s\n", arg);
         }
         return;
     }
