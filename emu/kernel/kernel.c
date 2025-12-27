@@ -12,7 +12,7 @@ void kernel_init(void) {
 }
 
 static void handle_write(struct CPU *cpu, uint8_t *memory) {
-    if (cpu->ebx.e != 1) return (void)(cpu->eax.e = -1); // Apenas stdout
+    if (cpu->ebx.e != 1) return (void)(cpu->eax.e = -1);
     
     uint32_t start = cpu->ecx.e;
     uint32_t count = cpu->edx.e;
@@ -22,7 +22,7 @@ static void handle_write(struct CPU *cpu, uint8_t *memory) {
         return;
     }
 
-    printf("\033[1;32m");
+    printf("\033[1;37m");
     for (uint32_t i=0;i<cpu->edx.e;i++) {
         putchar(memory[cpu->ecx.e + i]);
     }

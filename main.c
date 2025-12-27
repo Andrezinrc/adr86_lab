@@ -60,7 +60,9 @@ static void debugger_loop(struct fake_process *proc) {
 
         int idx = bp_check(&proc->cpu);
         if (idx >= 0) {
+            printf("\033[1;36m=> \033[0m");
             printf("Breakpoint atingido em 0x%X\n", proc->cpu.eip);
+
             bp_clear(proc->cpu.eip, proc->memory);
             dbg.running = 0;
             continue;
@@ -78,10 +80,10 @@ static void debugger_loop(struct fake_process *proc) {
 int main(int argc, char **argv){
     if (argc<3) {
         printf("\033[2J\033[H");
-        printf("\033[36m[x86 Emulator v0.1]\033[0m\n");
+        printf("\033[36m[x86 Debug Lab v0.1]\033[0m\n");
         printf("Commands:\n");
-        printf("  %s debug <program.bin>\n", argv[0]);
-        printf("  %s run   <program.bin>\n", argv[0]);
+        printf("  %s debug <program.bin>    # Interactive debugger\n", argv[0]);
+        printf("  %s run   <program.bin>    # Run program until exit\n", argv[0]);
         return 1;
     }
 
