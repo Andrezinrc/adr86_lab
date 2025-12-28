@@ -25,5 +25,6 @@ void dbg_handle_cmd(
     uint8_t *memory
 );
 void dbg_help(void);
+void dbg_trace_syscall(struct CPU *cpu);
 
 #endif

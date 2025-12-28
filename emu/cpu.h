@@ -18,6 +18,7 @@ struct CPU {
     union Reg32 esi, edi, ebp, esp;
     uint32_t eip;
     struct Flags flags;
+    int debug_mode;
 };
 
 struct fake_process;

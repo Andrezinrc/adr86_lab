@@ -15,6 +15,7 @@
 #include "mem.h"
 #include "decode.h"
 #include "kernel/kernel.h"
+#include "dbg.h"
 
 uint32_t *get_reg32(struct CPU *cpu, int index) {
     switch(index) {
@@ -317,7 +318,12 @@ void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc) {
                 uint8_t num = mem_read8(memory, cpu->eip + 1);
                 
                 if(num == 0x80){
-                    if(cpu->eax.e == 1) { // SYS_EXIT
+                    /* DEBUG: trace syscall */
+                    if(cpu->debug_mode){
+                        dbg_trace_syscall(cpu);
+                    }
+ 
+                   if(cpu->eax.e == 1) { // SYS_EXIT
                         if(proc){
                             proc->alive = 0;
                         }

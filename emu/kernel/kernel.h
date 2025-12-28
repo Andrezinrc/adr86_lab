@@ -4,7 +4,7 @@
 #include "../cpu.h"
 #include "../process.h"
 
-#define DEBUG_KERNEL
+//#define DEBUG_KERNEL
 
 #ifdef DEBUG_KERNEL
     #define KDEBUG(...) printf(__VA_ARGS__)

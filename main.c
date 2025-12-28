@@ -111,9 +111,11 @@ int main(int argc, char **argv){
     proc.pid = FAKE_PID;
     proc.memory = memory;
     proc.alive = 1;
+    proc.cpu.debug_mode = debug_mode;
 
     fp_register(&proc);
     cpu_init(&proc.cpu, MEM_SIZE);
+    proc.cpu.debug_mode = debug_mode;
     
     if (debug_mode){
         printf("[*] Modo DEBUG\n");

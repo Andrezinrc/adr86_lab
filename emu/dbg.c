@@ -158,3 +158,17 @@ void dbg_handle_cmd(struct Debugger *dbg, char *cmd, struct CPU *cpu, uint8_t *m
         return;
     }
 }
+
+void dbg_trace_syscall(struct CPU *cpu){
+    switch (cpu->eax.e){
+        case 1:
+            printf("[syscall] exit(status=%d)\n", cpu->ebx.e);
+            break;
+        case 4:
+            printf("[syscall] write(fd=%d, buf=0x%X, len=%d)\n",
+                   cpu->ebx.e, cpu->ecx.e, cpu->edx.e);
+            break;
+        default:
+            printf("[syscall] deseconhecido eax=%d\n", cpu->eax.e);
+    }
+}
