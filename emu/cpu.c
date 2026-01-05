@@ -195,6 +195,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc) {
         case 0xC3: ret(memory, cpu); break;
 
         case 0xF8: cpu->flags.CF=0; cpu->eip+=1; break; // CLC
+        case 0xCC: cpu->eip += 1; break; // INT3
         case 0xCD: { // INT n
             uint8_t num = mem_read8(memory, cpu->eip+1);
             if(num==0x80){

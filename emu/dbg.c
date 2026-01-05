@@ -107,9 +107,35 @@ void dbg_handle_cmd(struct Debugger *dbg, char *cmd, struct CPU *cpu, uint8_t *m
     }
 
     if (cmd[0] == 'w') {
-        uint32_t addr, val;
-        sscanf(cmd, "w %x %x", &addr, &val);
-        fake_ptrace(PTRACE_POKEDATA, 1337, (void*)addr, &val);
+        char *saveptr;
+        char *token = strtok_r(cmd + 1, " ", &saveptr);
+    
+        if (!token) {
+            printf("Uso: w <addr> <byte1> [byte2 ...]\n");
+            return;
+        }
+    
+        uint32_t addr;
+        if (sscanf(token, "%x", &addr) != 1) {
+            printf("Endereco invalido\n");
+            return;
+        }
+    
+        int count = 0;
+        while ((token = strtok_r(NULL, " ", &saveptr)) != NULL){
+            uint32_t val;
+            if (sscanf(token, "%x", &val) != 1) {
+                printf("Valor invalido: %s\n", token);
+                break;
+            }
+    
+            uint8_t b = val & 0xFF;
+            fake_ptrace(PTRACE_POKEDATA, 1337, (void*)addr, &b);
+            addr++;
+            count++;
+        }
+    
+        printf("%d byte(s) escritos\n", count);
         return;
     }
     
