@@ -13,6 +13,12 @@ start:
 
     mov eax, 4
     mov ebx, 1
+    mov ecx, f0
+    mov edx, f0_len
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
     mov ecx, 0x500
     mov edx, 11
     int 0x80
@@ -86,18 +92,14 @@ erro:
     inc al
     mov [0x540], al
 
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, 0x50C
-    mov edx, 6
-    int 0x80
-
     mov al, [0x540]
     cmp al, 1
     je forca1
     cmp al, 2
     je forca2
     cmp al, 3
+    je forca3
+    cmp al, 4
     je perdeu
 
     jmp ler
@@ -118,11 +120,25 @@ forca2:
     int 0x80
     jmp ler
 
-perdeu:
+forca3:
     mov eax, 4
     mov ebx, 1
     mov ecx, f3
     mov edx, f3_len
+    int 0x80
+    jmp ler
+
+perdeu:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, f4
+    mov edx, f4_len
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, perdeu_msg
+    mov edx, perdeu_msg_len
     int 0x80
 
     mov eax, 1
@@ -164,23 +180,64 @@ atualiza:
     int 0x80
 
 times 0x500-($-$$) db 0
-db '_', ' ', '_', ' ', '_', ' ', '_', ' ', '_', ' ', '_', 0x0A
+db '_',' ','_',' ','_',' ','_',' ','_',' ','_',0x0A
 db 0
-db 'Errou', 0x0A
-db 'GANHOU', 0x0A
+db 'GANHOU',0x0A
+
+perdeu_msg:
+db 'PERDEU',0x0A
+perdeu_msg_len equ $-perdeu_msg
 
 banner:
-db "=== JOGO DA FORCA ===", 0x0A, 0x0A
+db "=== JOGO DA FORCA ===",0x0A,0x0A
 banner_len equ $-banner
 
+f0:
+db " +---+",0x0A
+db " |   |",0x0A
+db " |",0x0A
+db " |",0x0A
+db " |",0x0A
+db " |",0x0A
+db "=======",0x0A
+f0_len equ $-f0
+
 f1:
-db " O",0x0A,0x0A
+db " +---+",0x0A
+db " |   |",0x0A
+db " |   O",0x0A
+db " |",0x0A
+db " |",0x0A
+db " |",0x0A
+db "=======",0x0A
 f1_len equ $-f1
 
 f2:
-db " O",0x0A," |",0x0A,0x0A
+db " +---+",0x0A
+db " |   |",0x0A
+db " |   O",0x0A
+db " |   |",0x0A
+db " |",0x0A
+db " |",0x0A
+db "=======",0x0A
 f2_len equ $-f2
 
 f3:
-db " O",0x0A,"/|\",0x0A,"/ \",0x0A
+db " +---+",0x0A
+db " |   |",0x0A
+db " |   O",0x0A
+db " |  /|\",0x0A
+db " |",0x0A
+db " |",0x0A
+db "=======",0x0A
 f3_len equ $-f3
+
+f4:
+db " +---+",0x0A
+db " |   |",0x0A
+db " |   O",0x0A
+db " |  /|\",0x0A
+db " |  / \",0x0A
+db " |",0x0A
+db "=======",0x0A
+f4_len equ $-f4

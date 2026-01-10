@@ -12,6 +12,13 @@
 #include "kernel/kernel.h"
 #include "dbg.h"
 
+#define DECODE_MODRM(modrm, mod, reg, rm) \
+    do { \
+        mod = (modrm) >> 6; \
+        reg = ((modrm) >> 3) & 0x07; \
+        rm  = (modrm) & 0x07; \
+    } while(0) 
+
 #define HANDLE_MOV_IMM32 \
     case 0xB8: case 0xB9: case 0xBA: case 0xBB: \
     case 0xBC: case 0xBD: case 0xBE: case 0xBF: { \
@@ -25,9 +32,8 @@
 #define MAKE_OP(base, OP_NAME) \
     case base+0x0: { /* reg8, modrm8 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             OP_NAME(cpu, get_reg(cpu, rm, 8), get_reg(cpu, reg, 8), 8); \
@@ -42,9 +48,8 @@
     } \
     case base+0x1: { /* reg32, modrm32 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             OP_NAME(cpu, get_reg(cpu, rm, 32), get_reg(cpu, reg, 32), 32); \
@@ -59,9 +64,8 @@
     } \
     case base+0x2: { /* modrm8, reg8 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             OP_NAME(cpu, get_reg(cpu, reg, 8), get_reg(cpu, rm, 8), 8); \
@@ -77,9 +81,8 @@
     } \
     case base+0x3: { /* modrm32, reg32 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             OP_NAME(cpu, get_reg(cpu, reg, 32), get_reg(cpu, rm, 32), 32); \
@@ -109,9 +112,8 @@
 #define HANDLE_MOV(base) \
     case base+0x0: { /* MOV reg8, modrm8 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             op_mov(cpu, get_reg(cpu, rm, 8), get_reg(cpu, reg, 8), 8); \
@@ -125,9 +127,8 @@
     } \
     case base+0x1: { /* MOV reg32, modrm32 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             op_mov(cpu, get_reg(cpu, rm, 32), get_reg(cpu, reg, 32), 32); \
@@ -141,9 +142,8 @@
     } \
     case base+0x2: { /* MOV modrm8, reg8 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             op_mov(cpu, get_reg(cpu, reg, 8), get_reg(cpu, rm, 8), 8); \
@@ -157,9 +157,8 @@
     } \
     case base+0x3: { /* MOV modrm32, reg32 */ \
         uint8_t modrm = mem_read8(memory, cpu->eip+1); \
-        uint8_t mod = modrm >> 6; \
-        uint8_t reg = (modrm >> 3) & 7; \
-        uint8_t rm = modrm & 7; \
+        uint8_t mod, reg, rm; \
+        DECODE_MODRM(modrm, mod, reg, rm); \
         int has_sib = (mod != 3 && rm == 4); \
         if (mod == 0x3){ \
             op_mov(cpu, get_reg(cpu, reg, 32), get_reg(cpu, rm, 32), 32); \
