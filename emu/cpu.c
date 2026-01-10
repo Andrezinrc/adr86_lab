@@ -395,7 +395,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc) {
             cpu->eip += 2;
             break;
         }
-	
+	    
         MAKE_OP(0x00, op_add)
         MAKE_OP(0x18, op_sub)
         MAKE_OP(0x30, op_xor)
