@@ -20,20 +20,18 @@ static const char *reg8_name(uint8_t reg) {
 }
 
 static void print_bytes(uint8_t *mem, uint32_t addr, int count) {
-    // Imprime até 6 bytes
     int max_to_show = 6;
     int to_show = (count > max_to_show) ? max_to_show : count;
     
     for (int i = 0; i < to_show; i++)
         printf("%02X ", mem[addr + i]);
 		
-    // Padding fixo de 20 caracteres no total
     int spaces = 20 - (to_show * 3);
     for (int i = 0; i < spaces; i++)
         printf(" ");
     
     if (count > max_to_show)
-        printf("..."); // Indica que tem mais bytes
+        printf("...");
 }
 
 static void print_modrm_8(uint8_t *memory, uint32_t eip, const char *mnemonic, bool reverse) {

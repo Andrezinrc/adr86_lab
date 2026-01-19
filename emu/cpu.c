@@ -415,7 +415,7 @@ void cpu_step(struct CPU *cpu, uint8_t *memory, struct fake_process *proc) {
         HANDLE_INCDEC(0x40, ++)  // INC
         HANDLE_INCDEC(0x48, --)  // DEC
         
-        /* INC/DEC 8-bit via 0xFE */
+        /* INC/DEC 8-bit */
         case 0xFE: {
             uint8_t subop = mem_read8(memory, cpu->eip + 1);
             if(subop == 0xC0) { // INC AL
