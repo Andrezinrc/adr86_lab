@@ -1,8 +1,3 @@
-/*
- * Intel 64 and IA-32 Architectures Software Developer's Manual
- * https://cdrdv2-public.intel.com/868139/325383-089-sdm-vol-2abcd.pdf
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

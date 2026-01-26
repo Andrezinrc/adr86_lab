@@ -1,4 +1,4 @@
-TARGET = adr
+TARGET = emulator
 CC = gcc
 CFLAGS = -Iemu -Wall -Wextra -g
 

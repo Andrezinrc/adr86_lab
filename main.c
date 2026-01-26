@@ -66,18 +66,19 @@ static void debugger_loop(struct fake_process *proc) {
 
 static void print_banner(const char *prog){
     printf("\033[2J\033[H");
-    printf("\033[36m[adr86]\033[0m\n");
+    printf("\033[36mxdb\033[0m\n");
     printf("Commands:\n");
     printf("  %s <program.bin>\n", prog);
 }
 
-static void print_header(struct fake_process *proc){
+static void print_header(struct fake_process *proc, const char *bin_path){
     printf("\033[2J\033[H");
     printf("CPU: x86 32-bit (emulado)\n");
     printf("Memory: %u KB (0x%08X - 0x%08X)\n",
            MEM_SIZE / 1024, 0x00000000, MEM_SIZE - 1);
     printf("Stack top: 0x%08X\n", proc->cpu.esp.e);
-    printf("Entry point: 0x%08X\n\n", proc->cpu.eip);
+    printf("Entry point: 0x%08X\n", proc->cpu.eip);
+    printf("\033[1;34mTarget:\033[0m %s\n\n", bin_path);
 }
 
 int main(int argc, char **argv){
@@ -102,7 +103,7 @@ int main(int argc, char **argv){
     fp_register(&proc);
     cpu_init(&proc.cpu, MEM_SIZE);
 
-    print_header(&proc);    
+    print_header(&proc, bin_path);
     debugger_loop(&proc);
     
     return 0;
