@@ -172,28 +172,6 @@ void disassemble(uint8_t *memory, uint32_t eip) {
         case 0x0B: print_modrm_32(memory, eip, "or", true); break; // OR r32, r/m32
         case 0x0C: print_imm8(memory, eip, "or", "al"); break; // OR AL, imm8
         case 0x0D: print_imm32(memory, eip, "or", "eax"); break; // OR EAX, imm32
-       
-        /* MOV reg8, [imm32] */	
-        case 0xA0: case 0xA1: case 0xA2: case 0xA3:
-        case 0xA4: case 0xA5: case 0xA6: case 0xA7: {
-            int instr_len = 5;
-            print_bytes(memory, eip, instr_len);
-            uint32_t addr = mem_read32(memory, eip + 1);
-            int reg = op & 7;
-            printf("    mov %s, [0x%08X]\n", reg8_name(reg), addr);
-            break;
-        }
-        
-        /* MOV [imm32], reg8 */
-        case 0xA8: case 0xA9: case 0xAA: case 0xAB:
-        case 0xAC: case 0xAD: case 0xAE: case 0xAF: {
-            int instr_len = 5;
-            print_bytes(memory, eip, instr_len);
-            uint32_t addr = mem_read32(memory, eip + 1);
-            int reg = op & 7;
-            printf("    mov [0x%08X], %s\n", addr, reg8_name(reg));
-            break;
-        }
         
         /* MOV reg8, imm8 */
         case 0xB0: case 0xB1: case 0xB2: case 0xB3:
@@ -203,17 +181,6 @@ void disassemble(uint8_t *memory, uint32_t eip) {
             uint8_t imm = memory[eip + 1];
             int reg = op & 7;
             printf("    mov %s, %u\n", reg8_name(reg), imm);
-            break;
-        }
-        
-        /* SUB reg8, imm8 */
-        case 0x80: case 0x81: case 0x82: case 0x83:
-        case 0x84: case 0x85: case 0x86: case 0x87: {
-            int instr_len = 3;
-            print_bytes(memory, eip, instr_len);
-            uint8_t imm = memory[eip + 2];
-            int reg = op & 7;
-            printf("    sub %s, %u\n", reg8_name(reg), imm);
             break;
         }
 
@@ -317,21 +284,6 @@ void disassemble(uint8_t *memory, uint32_t eip) {
         case 0x4D: print_bytes(memory, eip, 1); printf("    dec ebp\n"); break;
         case 0x4E: print_bytes(memory, eip, 1); printf("    dec esi\n"); break;
         case 0x4F: print_bytes(memory, eip, 1); printf("    dec edi\n"); break;
-    
-        /* FE C0 / FE C8 - INC/DEC AL */
-        case 0xFE: {
-            uint8_t subop = memory[eip + 1];
-            instr_len = 2;
-            print_bytes(memory, eip, instr_len);
-            
-            if(subop == 0xC0)
-                printf("    inc al\n");
-            else if(subop == 0xC8)
-                printf("    dec al\n");
-            else
-                printf("    db 0xFE, 0x%02X ; Unknown\n", subop);
-            break;
-        }
         
         // RET
         case 0xC3: print_bytes(memory, eip, 1); printf("    ret\n"); break;
